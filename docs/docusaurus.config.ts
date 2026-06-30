@@ -11,7 +11,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://reeve.vercel.app',
+  url: 'https://reeve.kunull.net',
   baseUrl: '/docs/',
 
   organizationName: 'Kunull',
