@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docusaurus
+docs/node_modules/
+docs/.docusaurus/
+docs/build/

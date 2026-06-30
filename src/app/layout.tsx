@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'REVER - Binary Analysis Tool',
-  description: 'Advanced binary analysis and reverse engineering tool',
+  title: 'REeve - AI Binary Reverse Engineering Assistant',
+  description: 'REeve combines Ghidra static analysis with Claude LLM reasoning to autonomously analyze binaries, name functions, identify vulnerabilities, and generate structured reports.',
   icons: {
     icon: '/favicon.png'
   }
