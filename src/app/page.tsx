@@ -266,8 +266,8 @@ export default function Home() {
                   <tr className="border-b border-white/10">
                     <th className="py-4 px-6 text-left text-gray-400 font-normal"></th>
                     <th className="py-4 px-6 text-center text-white font-bold">REeve</th>
-                    <th className="py-4 px-6 text-center text-gray-500 font-normal">Fixed pipelines (Kong)</th>
-                    <th className="py-4 px-6 text-center text-gray-500 font-normal">Reactive LLM loops (Rikugan)</th>
+                    <th className="py-4 px-6 text-center text-gray-500 font-normal">Fixed-pipeline tools</th>
+                    <th className="py-4 px-6 text-center text-gray-500 font-normal">Reactive LLM tools</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -280,10 +280,10 @@ export default function Home() {
                     ['Obsidian knowledge base output',   true,  false, false],
                     ['Multi-format report export',       true,  false, false],
                     ['Cost tracking per model',          true,  false, false],
-                  ].map(([label, reeve, kong, rikugan], i) => (
+                  ].map(([label, a, b, c], i) => (
                     <tr key={i} className="border-b border-white/5">
                       <td className="py-3 px-6 text-gray-300">{label as string}</td>
-                      {[reeve, kong, rikugan].map((v, j) => (
+                      {[a, b, c].map((v, j) => (
                         <td key={j} className="py-3 px-6 text-center">
                           {v ? (
                             <svg className={`w-4 h-4 mx-auto ${j === 0 ? 'text-green-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
