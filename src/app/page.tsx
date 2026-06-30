@@ -52,8 +52,8 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl backdrop-saturate-150 border-b border-white/10">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <a href="#" className="text-2xl font-bold font-title">
-              <span className="text-white">RE</span><span className="text-gray-400">E</span><span className="text-white">\</span><span className="text-gray-400">/E</span>
+            <a href="#" className="text-white text-2xl font-bold font-title">
+              REeve
             </a>
             <div className="md:hidden">
               <button
@@ -94,8 +94,8 @@ export default function Home() {
         <MatrixBackground className="absolute inset-0 w-full h-full" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-16">
-            <h1 className="text-6xl md:text-8xl font-bold mb-4 font-title tracking-wider">
-              <span className="text-white">RE</span><span className="text-gray-400">E</span><span className="text-white">\</span><span className="text-gray-400">/E</span>
+            <h1 className="text-6xl md:text-8xl font-bold mb-4 font-title tracking-wider text-white">
+              REeve
             </h1>
             <p className="text-lg md:text-xl text-gray-400 mb-4 max-w-2xl mx-auto font-mono">
               AI-powered binary reverse engineering assistant.
@@ -385,7 +385,7 @@ cd REeve && pip install -e .`,
       {/* Footer */}
       <footer className="py-8 border-t border-white/10">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-title text-lg"><span className="text-white">RE</span><span className="text-gray-400">E</span><span className="text-white">\</span><span className="text-gray-400">/E</span></span>
+          <span className="font-title text-lg">REeve</span>
           <a
             href="https://github.com/Kunull/REeve"
             target="_blank"
