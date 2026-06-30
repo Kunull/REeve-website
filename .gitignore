@@ -44,3 +44,6 @@ next-env.d.ts
 docs/node_modules/
 docs/.docusaurus/
 docs/build/
+
+# built docs output (generated during Vercel build)
+public/docs/

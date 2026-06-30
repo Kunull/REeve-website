@@ -1,6 +1,7 @@
 'use client';
 
 import MatrixBackground from '../components/MatrixBackground2';
+import GlassmorphicButton from '../components/GlassmorphicButton';
 import React from 'react';
 
 const TERMINAL_OUTPUT = `$ reeve analyze ./binary \\
@@ -58,7 +59,7 @@ export default function Home() {
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white p-2 focus:outline-none hover:bg-white/10 transition-colors"
+                className="text-white p-2 rounded-lg focus:outline-none hover:bg-white/10 transition-colors"
                 aria-label="Toggle menu"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,16 +75,13 @@ export default function Home() {
               <a href="#features" onClick={() => setIsMenuOpen(false)} className="block text-gray-300 hover:text-white transition-colors font-mono text-sm">Features</a>
               <a href="#demo" onClick={() => setIsMenuOpen(false)} className="block text-gray-300 hover:text-white transition-colors font-mono text-sm">Demo</a>
               <a href="#why" onClick={() => setIsMenuOpen(false)} className="block text-gray-300 hover:text-white transition-colors font-mono text-sm">Why REeve</a>
-              <a href="docs" onClick={() => setIsMenuOpen(false)} className="block text-gray-300 hover:text-white transition-colors font-mono text-sm">Docs</a>
-              <a
+              <a href="/docs" onClick={() => setIsMenuOpen(false)} className="block text-gray-300 hover:text-white transition-colors font-mono text-sm">Docs</a>
+              <GlassmorphicButton
                 href="https://github.com/Kunull/REeve"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full md:w-auto px-4 py-2 bg-white text-black hover:bg-white/90 transition-all text-center font-mono text-sm"
+                className="block w-full md:w-auto px-5 py-2 bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all text-center font-mono text-sm rounded-full"
               >
                 GitHub
-              </a>
+              </GlassmorphicButton>
             </div>
           </div>
         </div>
@@ -94,9 +92,6 @@ export default function Home() {
         <MatrixBackground className="absolute inset-0 w-full h-full" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-16">
-            <div className="inline-block mb-6 px-3 py-1 border border-white/20 bg-white/5 text-xs font-mono text-gray-400 tracking-widest uppercase">
-              Black Hat Arsenal India 2026
-            </div>
             <h1 className="text-6xl md:text-8xl font-bold mb-4 font-title tracking-wider text-white">
               REeve
             </h1>
@@ -109,26 +104,24 @@ export default function Home() {
               and a structured report in minutes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-              <a
+              <GlassmorphicButton
                 href="https://github.com/Kunull/REeve"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 bg-white text-black font-mono font-medium hover:bg-white/90 transition-all flex items-center justify-center space-x-2 group"
+                className="w-full sm:w-auto px-8 py-4 bg-white text-black font-mono font-medium hover:bg-white/90 transition-all flex items-center justify-center space-x-2 rounded-full"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
                 </svg>
                 <span>View on GitHub</span>
-              </a>
-              <a
-                href="docs"
-                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-mono font-medium hover:bg-white/20 transition-all flex items-center justify-center space-x-2 border border-white/10"
+              </GlassmorphicButton>
+              <GlassmorphicButton
+                href="/docs"
+                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-mono font-medium hover:bg-white/20 transition-all flex items-center justify-center space-x-2 border border-white/20 rounded-full"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <span>Documentation</span>
-              </a>
+              </GlassmorphicButton>
             </div>
           </div>
         </div>
@@ -191,7 +184,7 @@ export default function Home() {
                 },
               ].map((f, i) => (
                 <div key={i} className="flex items-start gap-4">
-                  <div className="flex-shrink-0 p-3 bg-white/5 border border-white/10">
+                  <div className="flex-shrink-0 p-3 bg-white/5 border border-white/10 rounded-xl">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       {f.icon}
                     </svg>
@@ -219,7 +212,7 @@ export default function Home() {
             </p>
 
             {/* Tab switcher */}
-            <div className="flex gap-0 mb-0 border border-white/10 w-fit mx-auto">
+            <div className="flex gap-0 mb-0 border border-white/10 w-fit mx-auto rounded-full overflow-hidden">
               {(['terminal', 'report'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -236,7 +229,7 @@ export default function Home() {
             </div>
 
             {/* Terminal window */}
-            <div className="border border-white/10 bg-black/80 backdrop-blur-sm">
+            <div className="border border-white/10 bg-black/80 backdrop-blur-sm rounded-xl mt-4 overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
                 <div className="w-3 h-3 rounded-full bg-red-500/70" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
@@ -263,7 +256,7 @@ export default function Home() {
             <p className="text-gray-500 text-center font-mono text-sm mb-16 max-w-2xl mx-auto">
               Existing AI-RE tools pick one of two bad tradeoffs. REeve avoids both.
             </p>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-white/10">
               <table className="w-full border-collapse font-mono text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
@@ -338,7 +331,7 @@ cd REeve && pip install -e .`,
   --kb`,
                 },
               ].map(({ step, label, code }) => (
-                <div key={step} className="border border-white/10 bg-black/60">
+                <div key={step} className="border border-white/10 bg-black/60 rounded-xl overflow-hidden">
                   <div className="flex items-center gap-4 px-4 py-3 border-b border-white/10">
                     <span className="text-xs font-mono text-gray-600">{step}</span>
                     <span className="text-sm font-mono text-gray-400">{label}</span>
@@ -363,23 +356,21 @@ cd REeve && pip install -e .`,
               Pull requests, issues, and new host bridge implementations are welcome.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <GlassmorphicButton
                 href="https://github.com/Kunull/REeve"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-8 py-4 bg-white text-black font-mono font-medium hover:bg-white/90 transition-all flex items-center justify-center space-x-2"
+                className="px-8 py-4 bg-white text-black font-mono font-medium hover:bg-white/90 transition-all flex items-center justify-center space-x-2 rounded-full"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
                 </svg>
                 <span>Star on GitHub</span>
-              </a>
-              <a
-                href="docs"
-                className="px-8 py-4 bg-white/10 text-white font-mono font-medium hover:bg-white/20 transition-all flex items-center justify-center space-x-2 border border-white/10"
+              </GlassmorphicButton>
+              <GlassmorphicButton
+                href="/docs"
+                className="px-8 py-4 bg-white/10 text-white font-mono font-medium hover:bg-white/20 transition-all flex items-center justify-center space-x-2 border border-white/20 rounded-full"
               >
                 <span>Read the Docs</span>
-              </a>
+              </GlassmorphicButton>
             </div>
           </div>
         </div>
@@ -389,9 +380,6 @@ cd REeve && pip install -e .`,
       <footer className="py-8 border-t border-white/10">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="font-title text-white text-lg">REeve</span>
-          <span className="text-gray-600 font-mono text-xs">
-            Black Hat Arsenal India 2026
-          </span>
           <a
             href="https://github.com/Kunull/REeve"
             target="_blank"

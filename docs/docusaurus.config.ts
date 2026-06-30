@@ -11,8 +11,8 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://kunull.github.io',
-  baseUrl: '/REeve/docs/',
+  url: 'https://reeve.vercel.app',
+  baseUrl: '/docs/',
 
   organizationName: 'Kunull',
   projectName: 'REeve',
@@ -86,7 +86,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: 'Black Hat Arsenal India 2026',
+      copyright: `REeve ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.oneDark,
