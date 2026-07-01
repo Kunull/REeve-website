@@ -100,11 +100,6 @@ export default function Home() {
             <p className="text-lg md:text-xl text-gray-400 mb-4 max-w-2xl mx-auto font-mono">
               AI-powered binary reverse engineering assistant.
             </p>
-            <p className="text-sm text-gray-500 mb-10 max-w-xl mx-auto font-mono leading-relaxed">
-              Ghidra extracts ground truth. Claude reasons over it.
-              You get named functions, identified vulnerabilities, testable hypotheses,
-              and a structured report in minutes.
-            </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <a
                 href="https://github.com/Kunull/REeve"
