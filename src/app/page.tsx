@@ -388,15 +388,12 @@ cd REeve && pip install -e .`,
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-xl mx-auto text-center pb-6 mb-6 border-b border-white/10">
-            <p className="text-gray-500 font-mono text-xs leading-relaxed">
-              <span className="text-gray-400">Etymology:</span> a reeve was historically a steward —
-              entrusted to manage someone else&apos;s property and report back honestly. RE is for
-              Reverse Engineering.
-            </p>
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="container mx-auto px-4 flex flex-col items-center gap-6">
+          <p className="max-w-xl text-center text-gray-500 font-mono text-xs leading-relaxed">
+            <span className="text-gray-400">Etymology:</span> a reeve was historically a steward —
+            entrusted to manage someone else&apos;s property and report back honestly.
+          </p>
+          <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="font-title text-lg"><LeetText text="REeve" leet="R33V3" /></span>
             <a
               href="https://github.com/Kunull/REeve"
