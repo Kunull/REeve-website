@@ -6,17 +6,17 @@ sidebar_position: 6
 
 # Knowledge Base
 
-REeve can generate an Obsidian-compatible knowledge base from any analysis session. The vault contains one note per function, component, and hypothesis, with YAML frontmatter, wikilinks, tags, and embedded decompilation.
+`KnowledgeBaseBuilder` turns a `Session`'s graph into an Obsidian-compatible vault: one note per function, component, and hypothesis, plus a strings index, an imports index, an overview, and an index/MOC note.
 
 ## Generating a Vault
 
-During analysis:
+During analysis, with decompilation embedded (a live Ghidra host is available):
 
 ```bash
 reeve analyze ./binary --kb
 ```
 
-From a saved session (no Ghidra required):
+From a saved session, without Ghidra — no decompilation, since it isn't stored in the session JSON:
 
 ```bash
 reeve kb ./binary.reeve.json --output ./binary_kb/
@@ -25,119 +25,134 @@ reeve kb ./binary.reeve.json --output ./binary_kb/
 ## Vault Structure
 
 ```
-binary_kb/
-  INDEX.md              <- MOC with stats, top functions, all hypotheses
+<binary>_kb/
+  index.md              MOC: stats, navigation, components, hypotheses, key functions, notable imports
+  overview.md            the full generated report (or "*Report not yet generated.*")
+  strings.md             extracted strings grouped by category
+  imports.md             resolved imports grouped by category
   functions/
-    main.md
-    parse_input.md
-    handle_request.md
-    ...
+    <slug>.md            one note per function
   components/
-    allocator.md
-    ui_layer.md
+    <slug>.md            one note per component
   hypotheses/
-    tcache_poisoning.md
-    uaf_write_primitive.md
+    <slug>.md            one note per hypothesis
 ```
+
+Filenames come from a `_slug()` helper: lowercase, strip everything but word characters/spaces/hyphens, collapse whitespace/underscores to a single `_`, truncate to 80 characters.
 
 ## Function Notes
 
-Each function note contains:
+Frontmatter and body are built directly from the graph — no field is invented if the graph doesn't have it:
 
 ```markdown
 ---
+tags:
+  - function
+  - size/small
+  - resolved
+  - component/allocator
+  - heap
 address: "0x101a3f"
 confidence: 0.85
-component: allocator
-tags: [heap, free, tcache]
-callers: ["[[main]]", "[[handle_request]]"]
-callees: ["[[malloc]]", "[[free]]"]
+size: small
+resolved: true
+obfuscated: false
+component: "allocator"
 ---
 
 # parse_chunk
 
-**Confidence:** █████████░ 85%
+```c
+void *parse_chunk(size_t size)
+```
 
-Part of component: [[allocator]]
+**Confidence:** ████████░░ 85%
 
-## Callers
-- [[main]]
-- [[handle_request]]
+**Component:** [[components/allocator]]
 
-## Callees
-- [[malloc]]
-- [[free]]
+## Calls
+- [[functions/malloc|malloc]]
+
+## Called by
+- [[functions/main|main]]
+
+## Referenced strings
+- `tcache poisoning` `#unknown`
 
 ## Decompilation
 
 ```c
 void * parse_chunk(size_t size) {
-  tcache_entry *entry;
-  entry = tcache->entries[idx];
-  if (entry == NULL) return malloc(size);
-  tcache->entries[idx] = entry->next;
-  return entry;
+  ...
 }
 ```
+```
 
-## LLM Analysis
+The `## Decompilation` section only appears when the builder was given a `decompile_fn` (i.e. `reeve analyze --kb`). `reeve kb` on a saved session never includes it.
 
-This function implements a custom tcache-style allocator that bypasses
-the standard glibc tcache. The fd pointer is not validated before use,
-making it vulnerable to a forged freelist attack if an attacker controls
-a freed chunk's fd field.
+## Component Notes
+
+```markdown
+---
+tags:
+  - component
+component_id: "allocator"
+confidence: 0.80
+functions: 6
+---
+
+# Component: allocator
+
+> Custom tcache-style allocator subsystem
+
+## Functions
+- [[functions/parse_chunk|parse_chunk]] —
 ```
 
 ## Hypothesis Notes
 
-Hypothesis notes link to the functions that provide supporting evidence:
-
 ```markdown
 ---
+tags:
+  - hypothesis
+  - hypothesis/confirmed
+hypothesis_id: "a1b2c3d4"
 confidence: 0.90
-status: tentative
+status: "confirmed"
 ---
 
-# tcache_poisoning
+# An attacker can forge a tcache freelist entry to redirect the next allocation
 
 **Confidence:** █████████░ 90%
-**Status:** tentative
 
-## Claim
-
-An attacker can forge a tcache freelist entry to redirect the next
-allocation to an arbitrary address.
-
-## Supporting Evidence
-
-- [[parse_chunk]] does not validate the fd pointer
-- [[print_tcache]] exposes raw fd values (information leak)
-- [[is_mapped]] validation is bypassable with a mapped target address
-
-## Falsification Conditions
-
-- If the allocator validates fd with a safe-linking scheme, exploitation
-  requires a heap address leak to compute the correct mangled pointer
+## Evidence for
+- parse_chunk does not validate the fd pointer
 ```
+
+There is no separate "Falsification Conditions" section in the actual note — `HypothesisNode` tracks `evidence_for`/`evidence_against` lists and a status (`open`/`confirmed`/`refuted`/`deferred`) derived from confidence crossing 0.85 or 0.15. See [KnowledgeGraph](./knowledge-graph.md#node-types).
 
 ## Using the Vault in Obsidian
 
 1. Open Obsidian
-2. File > Open Vault > select the `_kb/` directory
-3. Open `INDEX.md` to start
+2. File → Open Vault → select the `_kb/` directory
+3. Open `index.md` to start
 
-The graph view shows function call relationships as a visual network. Wikilinks between functions, components, and hypotheses are fully navigable.
+## Function Tags
 
-## Tags
+Beyond structural tags (`function`, `size/<class>`, `resolved`, `obfuscated`, `lang/<lang>`, `component/<slug>`), tags are inferred from a keyword-in-name check, in this order, all matches applied (a function can get several):
 
-Function notes are tagged based on their name and role:
-
-| Tag | Applied when |
+| Tag | Applied when the name contains |
 |-----|-------------|
-| `#heap` | Name contains alloc, free, malloc, chunk, tcache |
-| `#code-exec` | Name contains exec, shell, system, spawn |
-| `#crypto` | Name contains encrypt, decrypt, hash, cipher, aes |
-| `#net` | Name contains socket, recv, send, connect |
-| `#io` | Name contains read, write, open, close, file |
-| `#ctf/target` | Function is named `win`, `flag`, `get_shell` |
-| `#debug` | Name contains debug, log, print, trace |
+| `ctf/target` | `win` |
+| `ctf/flag` | `flag` |
+| `vulnerability` | `vuln` |
+| `heap` | `heap`, `malloc`, `free` |
+| `stack` | `stack` |
+| `vulnerability/overflow` | `overflow` |
+| `crypto` | `encrypt`, `decrypt`, `hash` |
+| `network` | `socket`, `recv`, `send` |
+| `code-exec` | `exec`, `shell`, `system` |
+| `parser` | `parse` |
+| `io` | `read`, `write` |
+
+This is a plain substring check on the (LLM-assigned or raw) function name — a function named `parse_and_free_chunk` picks up both `parser` and `heap`.

@@ -8,7 +8,13 @@ sidebar_position: 2
 
 ## Prerequisites
 
-REeve requires Java, Ghidra, and an Anthropic API key.
+REeve requires Python, Java, Ghidra, and an Anthropic API key.
+
+### Python 3.11+
+
+```bash
+python3 --version
+```
 
 ### Java 21+
 
@@ -16,18 +22,18 @@ REeve requires Java, Ghidra, and an Anthropic API key.
 java -version
 ```
 
-Set `JAVA_HOME` if it is not already set:
+Set `JAVA_HOME` if it is not already set. On macOS, a Temurin build can be extracted without `sudo`:
 
 ```bash
-export JAVA_HOME=/path/to/jdk-21
+export JAVA_HOME=~/java/<extracted-dir>/Contents/Home
 ```
 
 ### Ghidra
 
-Download a PUBLIC release from [github.com/NationalSecurityAgency/ghidra/releases](https://github.com/NationalSecurityAgency/ghidra/releases) and extract it. REeve does not require Ghidra to be installed -- just extracted.
+Download a PUBLIC release from [github.com/NationalSecurityAgency/ghidra/releases](https://github.com/NationalSecurityAgency/ghidra/releases) and extract it. REeve does not require Ghidra to be installed — just extracted, since [PyGhidra](https://github.com/NationalSecurityAgency/ghidra/tree/master/Ghidra/Features/PyGhidra) runs it in-process.
 
 ```bash
-export GHIDRA_INSTALL_DIR=/path/to/ghidra_PUBLIC
+export GHIDRA_INSTALL_DIR=/path/to/ghidra_<version>_PUBLIC
 ```
 
 ### Anthropic API Key
@@ -44,7 +50,7 @@ cd REeve
 pip install -e .
 ```
 
-The `setup.sh` script checks all three prerequisites and runs the install:
+Or run `setup.sh`, which checks all three prerequisites in order (Python, `JAVA_HOME`, `GHIDRA_INSTALL_DIR`, `ANTHROPIC_API_KEY`), installs the package, and initializes PyGhidra against your Ghidra install:
 
 ```bash
 bash setup.sh
@@ -61,14 +67,22 @@ Expected output:
 ```
 Usage: reeve [OPTIONS] COMMAND [ARGS]...
 
+  AI-powered binary reverse engineering engine.
+
 Options:
-  --help  Show this message and exit.
+  -v, --verbose  Enable debug logging
+  --help         Show this message and exit.
 
 Commands:
-  analyze  Analyze a binary with a goal.
-  report   Generate a report from a saved session.
-  kb       Build an Obsidian knowledge base from a saved session.
+  analyze  Run autonomous analysis on a binary.
+  ask      Ask a single question about a binary.
+  chat     Interactive chat over a binary — ask questions, rename functions.
+  eval     Evaluate analysis output against a ground truth JSON file.
+  kb       Build an Obsidian knowledge base from a saved session JSON.
+  report   Export or display the analysis report from a saved session JSON.
 ```
+
+See [CLI Reference](./cli.md) for what each command actually does.
 
 ## Persisting Environment Variables
 
@@ -80,6 +94,6 @@ export GHIDRA_INSTALL_DIR=/path/to/ghidra_PUBLIC
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-## Python Version
+## Notes on Dependencies
 
-REeve requires Python 3.10 or later. PyGhidra may require a specific minor version depending on the Ghidra release. Check the PyGhidra release notes if you encounter import errors.
+`pyproject.toml` also lists `openai` and `z3-solver` as dependencies. Neither is currently wired into any code path — there is no OpenAI client and no Z3-based analysis anywhere in the source. Obfuscation detection is regex-based heuristics only. Don't expect either package to do anything yet.
