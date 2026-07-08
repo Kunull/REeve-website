@@ -423,3 +423,12 @@ table tr:nth-child(2n) {
 .hidden {
   display: none !important;
 }
+
+
+
+/* MERMAID */
+
+.docusaurus-mermaid-container {
+  display: flex;
+  justify-content: center;
+}

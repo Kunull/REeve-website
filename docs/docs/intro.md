@@ -13,12 +13,43 @@ REeve is an AI-powered binary reverse engineering assistant. You give it a binar
 
 REeve separates concerns between Ghidra and Claude:
 
+This is the actual task DAG the planner builds for a default (`"full analysis"`) goal:
+
 ```mermaid
 flowchart TD
-    A(["Binary"]) --> B["Ghidra (via PyGhidra)<br/>resolve imports · build call graph · match signatures<br/>categorize strings · decompile functions · extract xrefs"]
-    B --> C[("KnowledgeGraph<br/>ground truth · evidence scores · dirty flags")]
-    C --> D["Claude (tiered: Haiku / Sonnet / Opus)<br/>name functions · form hypotheses · cluster components<br/>synthesize globally · generate report"]
-    D --> E(["Session JSON + Report (md / html / json / txt) + Obsidian Vault"])
+    Binary(["Binary"]) --> RI[resolve_imports]
+    Binary --> AS[analyze_strings]
+
+    subgraph static["Static analysis — Ghidra via PyGhidra, no LLM"]
+        direction TB
+        RI --> BCG[build_call_graph]
+        BCG --> MS[match_signatures]
+        BCG --> CF[classify_functions]
+        BCG --> ACFG[analyze_cfg]
+        MS --> IT[infer_types]
+        BCG --> IT
+        BCG --> CC[cluster_components]
+        AS --> CC
+    end
+
+    MS --> KG[("KnowledgeGraph<br/>ground truth · confidence · dirty flags")]
+    CF --> KG
+    ACFG --> KG
+    IT --> KG
+    CC --> KG
+
+    KG --> AF[analyze_function]
+
+    subgraph llm["LLM reasoning — Claude, tiered Haiku / Sonnet / Opus"]
+        direction TB
+        AF --> PN[propagate_names]
+        PN --> FH[form_hypothesis]
+        FH --> SC[synthesize_component]
+        SC --> GS[global_synthesis]
+        GS --> GR[generate_report]
+    end
+
+    GR --> Out(["Session JSON + Markdown report<br/>+ Obsidian vault if --kb"])
 ```
 
 Static analysis runs first and produces verified facts. The LLM only sees what Ghidra confirmed. There are no hallucinated function names or addresses.
