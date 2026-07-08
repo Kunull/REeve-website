@@ -21,6 +21,12 @@ const config: Config = {
     locales: ['en'],
   },
 
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ['@docusaurus/theme-mermaid'],
+
   presets: [
     [
       'classic',
@@ -67,6 +73,23 @@ const config: Config = {
       theme: prismThemes.oneDark,
       darkTheme: prismThemes.oneDark,
       additionalLanguages: ['bash', 'python', 'json'],
+    },
+    mermaid: {
+      theme: {light: 'base', dark: 'base'},
+      options: {
+        fontFamily: "'JetBrains Mono', monospace",
+        themeVariables: {
+          background: '#000000',
+          primaryColor: '#111111',
+          primaryTextColor: '#e5e5e5',
+          primaryBorderColor: '#333333',
+          lineColor: '#666666',
+          secondaryColor: '#111111',
+          tertiaryColor: '#0a0a0a',
+          textColor: '#e5e5e5',
+          nodeTextColor: '#e5e5e5',
+        },
+      },
     },
   } satisfies Preset.ThemeConfig,
 };

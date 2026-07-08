@@ -13,22 +13,12 @@ REeve is an AI-powered binary reverse engineering assistant. You give it a binar
 
 REeve separates concerns between Ghidra and Claude:
 
-```
-Binary
-  |
-  +-- Ghidra (via PyGhidra)
-  |     resolve imports, build call graph, match signatures,
-  |     categorize strings, decompile functions, extract xrefs
-  |
-  v
-KnowledgeGraph  <-- ground truth, evidence scores, dirty flags
-  |
-  +-- Claude (tiered: Haiku / Sonnet / Opus)
-        name functions, form hypotheses, cluster components,
-        synthesize globally, generate report
-  |
-  v
-Session JSON + Report (md / html / json / txt) + Obsidian Vault
+```mermaid
+flowchart TD
+    A(["Binary"]) --> B["Ghidra (via PyGhidra)<br/>resolve imports · build call graph · match signatures<br/>categorize strings · decompile functions · extract xrefs"]
+    B --> C[("KnowledgeGraph<br/>ground truth · evidence scores · dirty flags")]
+    C --> D["Claude (tiered: Haiku / Sonnet / Opus)<br/>name functions · form hypotheses · cluster components<br/>synthesize globally · generate report"]
+    D --> E(["Session JSON + Report (md / html / json / txt) + Obsidian Vault"])
 ```
 
 Static analysis runs first and produces verified facts. The LLM only sees what Ghidra confirmed. There are no hallucinated function names or addresses.
