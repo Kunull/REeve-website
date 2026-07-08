@@ -50,17 +50,13 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
+      title: 'REeve',
+      logo: {
+        alt: 'REeve',
+        src: 'img/favicon.png',
+        href: 'https://reeve.kunull.net/',
+      },
       items: [
-        {
-          type: 'html',
-          position: 'left',
-          value:
-            '<a href="/" class="navbar-brand-reeve" aria-label="REeve home">' +
-            '<span class="leet-hover" data-text="R33V3">REEVE</span>' +
-            '</a>' +
-            '<span class="navbar-brand-sep">/</span>' +
-            '<span class="navbar-brand-section">Documentation</span>',
-        },
         {
           type: 'docSidebar',
           sidebarId: 'docsSidebar',
