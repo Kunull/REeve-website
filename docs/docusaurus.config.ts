@@ -30,6 +30,7 @@ const config: Config = {
       'classic',
       {
         docs: {
+          breadcrumbs: false,
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
           editUrl: 'https://github.com/Kunull/REeve/tree/main/docs/',
@@ -50,18 +51,14 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'REeve',
-      logo: {
-        alt: 'REeve',
-        src: 'img/favicon.png',
-        href: 'https://reeve.kunull.net/',
-      },
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'docsSidebar',
+          type: 'html',
           position: 'left',
-          label: 'Docs',
+          value:
+            '<a href="https://reeve.kunull.net/" class="navbar-brand-reeve" data-text="R33V3" aria-label="REeve home">REEVE</a>' +
+            '<span class="navbar-brand-sep">/</span>' +
+            '<span class="navbar-brand-section">Documentation</span>',
         },
         {
           href: 'https://github.com/Kunull/REeve',
@@ -69,29 +66,6 @@ const config: Config = {
           position: 'right',
         },
       ],
-    },
-    footer: {
-      style: 'dark',
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            {label: 'Introduction', to: '/'},
-            {label: 'Installation', to: '/installation'},
-            {label: 'CLI Reference', to: '/cli'},
-          ],
-        },
-        {
-          title: 'Project',
-          items: [
-            {
-              label: 'GitHub',
-              href: 'https://github.com/Kunull/REeve',
-            },
-          ],
-        },
-      ],
-      copyright: `REeve ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.oneDark,

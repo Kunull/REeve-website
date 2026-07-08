@@ -122,6 +122,10 @@ code {
 
 /* CODE BLOCK (Code) */
 
+.codeLineNumber_Tfdd {
+  background: #111 !important;
+}
+
 .theme-code-block-highlighted-line {
   background: #222 !important;
 }
@@ -134,10 +138,15 @@ code {
 
 /* CODE BLOCK (Code title) */
 /* Background color (title) */
-.buttonGroup__atx button {
+.buttonGroup__atx button, .codeBlockContainer_Ckt0 {
     background: #000 !important;
     color: #333;
     border: 1px solid #333 !important;
+}
+
+/* Border bottom */
+.codeBlockTitle_Ktv7 {
+    border-bottom: 1px solid #333 !important;
 }
 
 
@@ -170,6 +179,15 @@ code {
         align-self: center;
         max-width: 1500px;
     }
+}
+
+/* Width */
+.mainWrapper_z2l0 {
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
 }
 
 
@@ -208,21 +226,45 @@ h1 {
     max-width: 1460px;
 }
 
-/* Title logo */
-.text--truncate {
-  font-size: 0;
+/* Brand: "REEVE / Documentation" */
+.navbar-brand-reeve {
   font-family: 'VCR OSD Mono';
   text-transform: uppercase;
-  font-weight: var(--ifm-font-weight-normal) !important;
-}
-
-.text--truncate::after {
+  font-weight: var(--ifm-font-weight-normal);
   font-size: 1.75rem;
-  content: "/ REEVE ►";
+  color: var(--ifm-navbar-link-color);
+  text-decoration: none;
+  position: relative;
 }
 
-.text--truncate:hover::after {
-  content: "/ R33V3 ►";
+.navbar-brand-reeve:hover {
+  color: transparent;
+  text-decoration: none;
+}
+
+.navbar-brand-reeve::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--ifm-navbar-link-color);
+  opacity: 0;
+}
+
+.navbar-brand-reeve:hover::after {
+  opacity: 1;
+}
+
+.navbar-brand-sep,
+.navbar-brand-section {
+  font-family: 'VCR OSD Mono';
+  text-transform: uppercase;
+  font-size: 1.75rem;
+  color: var(--ifm-navbar-link-color);
+}
+
+.navbar-brand-sep {
+  margin: 0 0.4rem;
 }
 
 
@@ -257,6 +299,14 @@ h1 {
     line-height: 1.5;
 }
 
+aside.docSidebarContainer_YfHR {
+    border-right: 0px;
+}
+
+nav.menu_SIkG {
+  padding: 1.5rem 1rem 2rem 1rem;
+}
+
 .token-line {
   color: #000;
 }
@@ -285,6 +335,21 @@ h1 {
 
 
 
+/* BREADCRUMBS */
+
+/* Background color */
+.breadcrumbs__item--active .breadcrumbs__link {
+    background: #222;
+}
+
+/* Margin bottom */
+.breadcrumbs__item, .breadcrumbs__link, .button, .dropdown>.navbar__link:after {
+    margin-bottom: 2px;
+    display: inline-block;
+}
+
+
+
 /* TABLE OF CONTENTS */
 
 /* Left border */
@@ -298,23 +363,18 @@ h1 {
     padding-right: 1rem;
 }
 
+/* Display none (mobile version) */
+.tocCollapsible_ETCw {
+    display: none;
+}
+
+.tableOfContents_bqdL {
+    position: sticky;
+    top: calc(var(--ifm-navbar-height) + 1.5rem) !important;
+}
+
 .table-of-contents {
   font-size: 0.85rem;
-}
-
-
-
-/* BREADCRUMBS */
-
-/* Background color */
-.breadcrumbs__item--active .breadcrumbs__link {
-    background: #222;
-}
-
-/* Margin bottom */
-.breadcrumbs__item, .breadcrumbs__link, .button, .dropdown>.navbar__link:after {
-    margin-bottom: 2px;
-    display: inline-block;
 }
 
 
