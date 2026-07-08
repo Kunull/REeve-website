@@ -389,15 +389,11 @@ cd REeve && pip install -e .`,
       {/* Footer */}
       <footer className="py-12 border-t border-white/10">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center pb-8 mb-8 border-b border-white/10">
-            <h3 className="font-title text-xs uppercase tracking-wider text-gray-500 mb-3">Etymology</h3>
+          <div className="max-w-xl mx-auto text-center pb-6 mb-6 border-b border-white/10">
             <p className="text-gray-500 font-mono text-xs leading-relaxed">
-              A <span className="text-gray-300">reeve</span> was, at its core, a steward — someone entrusted
-              to manage a property on another&apos;s behalf: taking stock of what&apos;s there, keeping things
-              in order, and giving an honest account back to the owner. REeve does the same for a binary.
-              You hand it something you don&apos;t fully understand, and it takes stewardship of the analysis —
-              methodical, accountable, nothing hidden. The capitals are the point —{' '}
-              <span className="text-white">RE</span>verse Engineering.
+              <span className="text-gray-400">Etymology:</span> a reeve was historically a steward —
+              entrusted to manage someone else&apos;s property and report back honestly. RE is for
+              Reverse Engineering.
             </p>
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">

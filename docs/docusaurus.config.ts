@@ -7,10 +7,6 @@ const config: Config = {
   tagline: 'AI-powered binary reverse engineering assistant',
   favicon: 'img/favicon.png',
 
-  future: {
-    v4: true,
-  },
-
   url: 'https://reeve.kunull.net',
   baseUrl: '/docs/',
 
