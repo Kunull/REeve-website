@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'REeve',
   tagline: 'AI-powered binary reverse engineering assistant',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
 
   future: {
     v4: true,
@@ -50,8 +50,17 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'REeve',
       items: [
+        {
+          type: 'html',
+          position: 'left',
+          value:
+            '<a href="/" class="navbar-brand-reeve" aria-label="REeve home">' +
+            '<span class="leet-hover" data-text="R33V3">REEVE</span>' +
+            '</a>' +
+            '<span class="navbar-brand-sep">/</span>' +
+            '<span class="navbar-brand-section">Documentation</span>',
+        },
         {
           type: 'docSidebar',
           sidebarId: 'docsSidebar',

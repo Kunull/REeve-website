@@ -1,6 +1,7 @@
 'use client';
 
 import MatrixBackground from '../components/MatrixBackground2';
+import LeetText from '../components/LeetText';
 import React from 'react';
 
 const TERMINAL_OUTPUT = `$ reeve analyze ./binary \\
@@ -53,7 +54,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <a href="#" className="text-white text-2xl font-bold font-title">
-              REeve
+              <LeetText text="REeve" leet="R33V3" />
             </a>
             <div className="md:hidden">
               <button
@@ -95,7 +96,7 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center py-16">
             <h1 className="text-6xl md:text-8xl font-bold mb-4 font-title tracking-wider text-white">
-              REeve
+              <LeetText text="REeve" leet="R33V3" />
             </h1>
             <p className="text-lg md:text-xl text-gray-400 mb-4 max-w-2xl mx-auto font-mono">
               AI-powered binary reverse engineering assistant.
@@ -148,35 +149,39 @@ export default function Home() {
                 },
                 {
                   icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4 8 4m0 0c4.418 0 8-1.79 8-4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.933 2.185 2.25 2.25 0 00-3.933-2.185zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                   ),
                   title: 'Evidence-Scored KnowledgeGraph',
                   body: 'Every fact extracted from the binary lands in a queryable KnowledgeGraph with confidence scores, source provenance, and dirty-flag propagation. The LLM reads from this graph, not from raw bytes.',
                 },
                 {
                   icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3L3 8.5l9 5.5 9-5.5L12 3z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 15.5l9 5.5 9-5.5" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l9 5.5 9-5.5" />
+                    </>
                   ),
                   title: 'Tiered LLM Routing',
                   body: 'Haiku for fast classification. Sonnet for function naming and hypothesis formation. Opus for global synthesis and report generation. Each task is routed to the cheapest model capable of handling it.',
                 },
                 {
                   icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                   ),
                   title: 'Obsidian Knowledge Base',
                   body: 'Every analysis run produces an Obsidian-compatible vault: one note per function, component, and hypothesis. Notes have YAML frontmatter, [[wikilinks]] to callees and callers, tags, and embedded decompilation.',
                 },
                 {
                   icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
                   ),
                   title: 'Ghidra Integration via PyGhidra',
                   body: 'REeve runs Ghidra in-process via PyGhidra with no subprocess overhead. Decompilation, xrefs, imports, strings, and binary metadata are all extracted through the same Ghidra instance.',
                 },
                 {
                   icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                   ),
                   title: 'Multi-Format Report Export',
                   body: 'Reports export as Markdown, HTML, JSON (one key per section), or plain text. Every analysis session is saved to a JSON file containing the full function list, hypotheses, and report for later use.',
@@ -232,12 +237,12 @@ export default function Home() {
               <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
                 <div className="w-3 h-3 rounded-full bg-red-500/70" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                <div className="w-3 h-3 rounded-full bg-green-500/70" />
+                <div className="w-3 h-3 rounded-full bg-gray-400/70" />
                 <span className="ml-2 text-xs text-gray-500 font-mono">
                   {activeTab === 'terminal' ? 'reeve analyze' : 'binary.report.md'}
                 </span>
               </div>
-              <pre className="p-6 text-sm font-mono text-green-400/90 leading-relaxed overflow-x-auto whitespace-pre">
+              <pre className="p-6 text-sm font-mono text-gray-300 leading-relaxed overflow-x-auto whitespace-pre">
                 {activeTab === 'terminal' ? TERMINAL_OUTPUT : REPORT_SNIPPET}
               </pre>
             </div>
@@ -335,7 +340,7 @@ cd REeve && pip install -e .`,
                     <span className="text-xs font-mono text-gray-600">{step}</span>
                     <span className="text-sm font-mono text-gray-400">{label}</span>
                   </div>
-                  <pre className="p-4 text-sm font-mono text-green-400/90 overflow-x-auto">{code}</pre>
+                  <pre className="p-4 text-sm font-mono text-gray-300 overflow-x-auto">{code}</pre>
                 </div>
               ))}
             </div>
@@ -380,7 +385,7 @@ cd REeve && pip install -e .`,
       {/* Footer */}
       <footer className="py-8 border-t border-white/10">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-title text-lg">REeve</span>
+          <span className="font-title text-lg"><LeetText text="REeve" leet="R33V3" /></span>
           <a
             href="https://github.com/Kunull/REeve"
             target="_blank"
