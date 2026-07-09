@@ -6,29 +6,25 @@ sidebar_position: 5
 
 # Reports
 
-If a plan reaches `generate_report`, that task calls `LLMReasoner.generate_report()` on Opus, which is given a system prompt describing a seven-section Markdown structure and told to **omit sections that don't apply**. It isn't a rigid schema enforced in code — it's an instruction the model can and does skip parts of.
-
-## Requested Sections
+REeve's report generator writes a structured Markdown analysis report on Opus, covering as much of the following as applies to the binary:
 
 | Section | Content |
 |---------|---------|
-| 1. Overview | One paragraph: binary type, format, architecture, overall purpose |
-| 2. Key Functions | Markdown table: Function \| Address \| Role |
-| 3. Program Behavior | Numbered walkthrough of the execution flow |
-| 4. Flag / Objective (CTF) | How the flag/objective is reached, if this is a CTF binary |
+| 1. Overview | Binary type, format, architecture, and overall purpose |
+| 2. Key Functions | Table of the most important functions, addresses, and roles |
+| 3. Program Behavior | Walkthrough of the execution flow |
+| 4. Flag / Objective (CTF) | How the flag or objective is reached, for CTF binaries |
 | 5. Vulnerability / Mechanism | Root cause and why it's exploitable |
-| 6. Exploitation Path | Numbered step-by-step exploit procedure |
-| 7. Conclusion | Two-sentence summary of the binary and the finding |
-
-Whether hypothesis-related sections (4–6) actually appear depends on which plan ran — see [Goals](./goals.md). The full symbol-recovery plan, which is what `reeve analyze`'s own default goal triggers, skips `form_hypothesis` entirely, so a report from that run has little to say in sections 4–6 beyond what Opus can infer from function names and strings alone.
+| 6. Exploitation Path | Step-by-step exploit procedure |
+| 7. Conclusion | Summary of the binary and the finding |
 
 ## Auto-Save
 
-Every `reeve analyze` run that reaches `generate_report` unconditionally saves the report to `<binary>.report.md`. There's no flag to change this path — see [CLI Reference](./cli.md#reeve-analyze).
+Every `reeve analyze` run that produces a report saves it to `<binary>.report.md` automatically.
 
 ## Re-Exporting From a Saved Session
 
-`reeve report` re-renders the report already stored in a session JSON — it does not call the LLM again:
+`reeve report` re-renders the report already stored in a session JSON, in a different format:
 
 ```bash
 reeve report ./binary.reeve.json --format html --output ./binary.report.html
@@ -36,28 +32,24 @@ reeve report ./binary.reeve.json --format json
 reeve report ./binary.reeve.json --format txt
 ```
 
-If no report was generated during the run (e.g. a plan that never reaches `generate_report`), the session JSON's `report` field is empty and `reeve report` exits with an error.
-
-## Format Conversion
-
-Conversion from the stored Markdown is regex-based, not a full Markdown parser:
+## Format Options
 
 ### Markdown (`md`)
 
-Passed through unchanged.
+The report as generated — headers, tables, and code blocks intact. Suitable for direct reading, GitHub rendering, or Obsidian.
 
 ### HTML (`html`)
 
-`#`/`##`/`###` headings become `<h1>`/`<h2>`/`<h3>`, `**bold**`/`*italic*`/`` `code` `` become their inline tags, and everything else is wrapped in `<p>` tags line by line. Lists, tables, and fenced code blocks are **not** converted — a Markdown table in the Key Functions section stays as literal pipe-and-dash text inside a `<p>`.
+Headings and inline formatting converted to HTML tags for sharing without a Markdown renderer.
 
 ### JSON (`json`)
 
-Splits the text on every `#`/`##`/`###` heading it finds and uses the slugified heading text as the key, in whatever order the headings actually appear. Because sections are optional, the key set varies run to run — don't hardcode a fixed schema like `{summary, architecture, vulnerability, ...}` when consuming this.
+One key per section, keyed by heading — suitable for piping into other tools.
 
 ### Plain text (`txt`)
 
-Strips heading markers, bold/italic markers, inline code backticks, and Markdown link syntax down to their visible text.
+Markup stripped down to visible text, for terminals or tools that don't render Markdown.
 
 ## Report Quality
 
-Report quality depends on how much of the graph got named and how far the goal's plan reaches. A goal that falls through to the full-analysis plan (rule 5 in [Goals](./goals.md)) exercises hypothesis formation and per-component synthesis before the report is written; a goal that lands in the full symbol-recovery plan (rule 4, which includes the CLI's own literal default) does not.
+Report quality tracks analysis depth: the more of the binary's functions are named and the more components and hypotheses are formed, the more the report has to draw on. Goals phrased around understanding or attacking the binary as a whole exercise the fullest pipeline — see [Goals](./goals.md).

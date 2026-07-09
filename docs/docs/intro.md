@@ -13,7 +13,7 @@ REeve is an AI-powered binary reverse engineering assistant. You give it a binar
 
 REeve separates concerns between Ghidra and Claude:
 
-This is the actual task DAG the planner builds for a default (`"full analysis"`) goal:
+This is the task DAG for REeve's full analysis pipeline:
 
 ```mermaid
 flowchart TD

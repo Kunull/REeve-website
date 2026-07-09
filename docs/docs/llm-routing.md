@@ -6,7 +6,7 @@ sidebar_position: 9
 
 # LLM Routing
 
-`reeve/llm/router.py` defines three model constants and a static, hardcoded lookup table from task kind to model. This is not adaptive — it's a fixed dict, checked once per task:
+`reeve/llm/router.py` routes each task kind to a model tier via a fixed lookup table:
 
 ```python
 HAIKU  = "claude-haiku-4-5-20251001"
@@ -29,44 +29,28 @@ def model_for_task(kind: TaskKind) -> str:
     return _TASK_MODEL.get(kind, SONNET)
 ```
 
-These three ID strings are the only model identifiers anywhere in the codebase — they are constants this project defines, not a claim about what Anthropic has actually released.
+Haiku handles cheap classification, Sonnet handles per-function and per-component reasoning, and Opus handles whole-binary synthesis and the final report.
 
-`global_synthesis` and `generate_report`'s handlers hardcode `OPUS` directly instead of calling `model_for_task()` — same result as the table, just written two different ways in different call sites. `DEOBFUSCATE_FUNCTION` has a model mapped to it but no registered task handler, so it never actually runs.
+## What Each Model Handles
 
-## Downgrading Is Dead Code
-
-```python
-def downgrade(model_id: str) -> str:
-    """Return the next cheaper model tier."""
-    if model_id == OPUS:
-        return SONNET
-    if model_id == SONNET:
-        return HAIKU
-    return HAIKU
-```
-
-`downgrade()` is defined but never called anywhere. Budget enforcement (`--budget`/`-b`) doesn't step tasks down to a cheaper model — `TaskExecutor` just checks `cost_tracker.over_budget()` before starting each task and hard-skips it if the ceiling is already hit. Once budget runs out, remaining LLM tasks stop; they don't run cheaper.
-
-## What Each Model Actually Handles
-
-| Task kind | Model | Handler behavior |
+| Task kind | Model | What it does |
 |-----------|-------|-------------------|
-| `classify_functions` | Haiku | Static-analysis handler — despite the name this task doesn't currently call the LLM in `handlers.py`'s registered implementation; it's classified as cheap in the table for when/if that changes. |
-| `analyze_function` | Sonnet | Per-function naming/typing — see below. |
-| `form_hypothesis`, `test_hypothesis` | Sonnet | Turns a `claim_template` into a specific claim; tests it. |
+| `classify_functions` | Haiku | Lightweight per-function classification. |
+| `analyze_function` | Sonnet | Per-function naming and typing — see below. |
+| `form_hypothesis`, `test_hypothesis` | Sonnet | Turns a claim template into a specific, falsifiable claim, then tests it. |
 | `synthesize_component` | Sonnet | Per-component summary. |
 | `answer_question` | Sonnet | `reeve chat`/`reeve ask` answers. |
 | `global_synthesis`, `generate_report` | Opus | Whole-binary synthesis and the final report. |
 
 ## The `analyze_function` Prompt
 
-`LLMReasoner.analyze_function()` sends a system prompt that demands a strict JSON response (name, confidence, prototype, params, comment, struct_proposals, evidence_summary) and a user message built from already-computed graph facts — known callee names, import categories, type inferences, clustered string samples, the component hypothesis, obfuscation notes, and the decompiled body. `tools=[]` is passed on every call site currently in the codebase — see [Architecture](./architecture.md#tools) for why the tool-calling infrastructure exists but isn't wired up live.
+`LLMReasoner.analyze_function()` sends a system prompt that requires a strict JSON response (name, confidence, prototype, params, comment, struct_proposals, evidence_summary) and a user message built from already-computed graph facts: known callee names, import categories, type inferences, clustered string samples, the component hypothesis, obfuscation notes, and the decompiled body.
 
-Response parsing (`_parse_response`) is a plain `content.find("{")` / `rfind("}")` slice fed to `json.loads` — not the Anthropic SDK's structured-output/tool-forcing features. A malformed response degrades to `unknown_<address>` with confidence 0.0 rather than raising.
+Response parsing extracts the JSON object from the response text and validates it against the expected fields. A malformed response degrades to a placeholder name with confidence 0.0 rather than raising.
 
 ## Cost Tracking
 
-`CostTracker` accumulates `TokenUsage` per model and prices it from a hardcoded per-1M-token table (`llm/usage.py`), separately tracking cache writes and cache reads:
+`CostTracker` accumulates token usage per model and prices it from a per-1M-token table (`llm/usage.py`), separately tracking cache writes and cache reads:
 
 ```python
 _PRICING = {
@@ -76,8 +60,8 @@ _PRICING = {
 }
 ```
 
-`session.print_status()` prints total cost; `cost_tracker.summary()` breaks it down per model with input/output/cache-read/cache-write token counts.
+`session.print_status()` prints total cost; `cost_tracker.summary()` breaks it down per model with input/output/cache-read/cache-write token counts. `--budget`/`-b` sets a hard cost ceiling for the run — the executor checks it before starting each task and stops scheduling new LLM tasks once it's reached.
 
 ## Prompt Caching
 
-`AnthropicClient` caches exactly one thing: the **system prompt block**, via `cache_control: {"type": "ephemeral"}` on that block. There is no separately cached "binary context" block — every call sends its full user message fresh. Cache effectiveness therefore depends on how often the same system prompt (e.g. the fixed `analyze_function` system prompt) repeats across calls within the cache TTL, which happens naturally since every function-analysis call in a run shares the same system prompt string.
+`AnthropicClient` caches the system prompt block via `cache_control: {"type": "ephemeral"}`. Since every function-analysis call in a run shares the same system prompt string, this caches well across a single session.

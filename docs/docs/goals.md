@@ -6,67 +6,48 @@ sidebar_position: 4
 
 # Goals
 
-The `--goal` flag tells REeve what to focus on. It looks like natural language, but `GoalPlanner.decompose()` is **keyword matching, not an LLM call** — the goal string is lowercased and checked against five fixed patterns, in order, and the first match wins.
-
-## Matching Order
+The `--goal` flag tells REeve what to focus on, in plain English. `GoalPlanner` reads the goal and selects one of five task plans based on the intent it detects:
 
 ```
-1. Function question?           → single-function plan
-   (matches "0x...", "sub_...", "analyze function",
-    "what is/does ... function/sub_/0x", or the broad "what does ... do")
-
-2. contains "malware" / "threat" / "c2" / "persistence" / "inject"
-                                 → malware analysis plan
-
-3. contains "vulnerability" / "vuln" / "overflow" / "uaf" / "exploit"
-                                 → vulnerability plan
-
-4. contains "symbol" / "name" / "recover" / "rename" / "full"
-                                 → full symbol-recovery plan
-
-5. (no match)                   → full analysis plan
+Function-specific question   → single-function plan
+Malware / threat indicators  → malware analysis plan
+Vulnerability / exploitation → vulnerability plan
+Symbol recovery              → full symbol-recovery plan
+General analysis             → full analysis plan
 ```
 
-Each branch returns a fixed, hardcoded list of `Task` objects — the plan shape doesn't otherwise adapt to your wording, only to which bucket it lands in.
-
-:::warning The CLI's own default goal doesn't hit "full analysis"
-`reeve analyze` defaults to `--goal "full analysis"`. That string contains `"full"`, which matches **rule 4** (full symbol-recovery), not rule 5. So the out-of-the-box default plan is: static foundation → `analyze_function` → `propagate_names` → `global_synthesis` → `generate_report`. It **skips `form_hypothesis` and `synthesize_component` entirely** — no hypotheses get formed unless your goal happens to fall through to rule 5, e.g. by avoiding every listed keyword.
-:::
+Each plan is a purpose-built task sequence — not a generic pipeline reused for every goal.
 
 ## Plan Contents
 
-All plans start from the same static foundation (`resolve_imports`, `analyze_strings`, `build_call_graph`, `match_signatures`, `classify_functions`, `analyze_cfg`, `infer_types`, `cluster_components`), then diverge:
+Every plan starts from the same static foundation (`resolve_imports`, `analyze_strings`, `build_call_graph`, `match_signatures`, `classify_functions`, `analyze_cfg`, `infer_types`, `cluster_components`), then diverges based on the goal:
 
-| Plan | Extra tasks after the static foundation |
-|------|------------------------------------------|
-| Single function | `analyze_function` (scope: single, address if found) → `answer_question` |
-| Malware analysis | `analyze_function` (focus: malware) → `propagate_names` → two `form_hypothesis` (C2 comms, persistence) → two `test_hypothesis` → `generate_report` (focus: malware) |
-| Vulnerability | `analyze_function` (focus: vulnerability) → `propagate_names` → `form_hypothesis` (input validation weakness) → `test_hypothesis` → `generate_report` (focus: vulnerability) |
-| Full symbol recovery | `analyze_function` (scope: all) → `propagate_names` → `global_synthesis` → `generate_report` |
-| Full analysis | `analyze_function` (scope: all) → `propagate_names` → `form_hypothesis` → `synthesize_component` → `global_synthesis` → `generate_report` |
+| Plan | Focus |
+|------|-------|
+| Single function | Answers a targeted question about one function — by address, name, or description. |
+| Malware analysis | Names functions with a malware lens, then forms and tests hypotheses about C2 communication and persistence mechanisms. |
+| Vulnerability | Names functions with a vulnerability lens, then forms and tests a hypothesis about the input-validation weakness driving it. |
+| Full symbol recovery | Names every function and produces a synthesized report, prioritizing coverage. |
+| Full analysis | Names every function, forms and clusters component-level hypotheses, then synthesizes and reports — the most complete pipeline. |
 
-`form_hypothesis`/`test_hypothesis` calls seed a `claim_template` string (e.g. `"C2 communication mechanism"`) — the LLM is asked to turn that into a specific, falsifiable claim, not to invent the topic itself.
+`form_hypothesis`/`test_hypothesis` seed a claim template (e.g. "C2 communication mechanism") and ask the LLM to turn it into a specific, falsifiable claim grounded in the analyzed functions.
 
 ## Writing Goals
 
-Since matching is substring-based, the practical guidance is narrower than "be specific":
-
-- Rules are checked in the order above and the first match wins. A goal containing both `"overflow"` and `"full"` hits rule 3 (vulnerability), not rule 4, because vulnerability is checked first.
-- If you want `form_hypothesis`/`test_hypothesis` to run on a general goal, avoid every keyword in rules 1–4 (including `full`) so the goal falls through to rule 5. `"identify how this could be attacked"` works; `"full analysis"` does not.
-- Avoid phrasing your goal as "what does ... do" or mentioning a `0x` address or `sub_` name unless you actually want the narrow single-function plan — those patterns route there regardless of what else the goal says.
-
-### Examples
+Describe what you want to find, not how to find it:
 
 ```bash
-# Falls through to rule 5 (full analysis, includes hypothesis formation)
-reeve analyze ./challenge --goal "identify how this could be attacked"
-
-# Rule 3 (vulnerability plan) via "overflow"
+# Vulnerability-focused
 reeve analyze ./pwnable --goal "look for a stack overflow"
 
-# Rule 2 (malware plan) via "c2"
+# Malware triage
 reeve analyze ./sample.exe --goal "identify c2 behavior"
 
-# Rule 1 (single-function plan) via the address pattern
+# Targeted function question
 reeve analyze ./binary --goal "what does the function at 0x401234 do?"
+
+# General, full-depth analysis
+reeve analyze ./challenge --goal "identify how this could be attacked"
 ```
+
+For the most complete pipeline — full function naming, component clustering, hypothesis formation, and global synthesis — phrase the goal around understanding or attacking the binary as a whole rather than around symbol recovery specifically.

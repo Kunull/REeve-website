@@ -6,11 +6,11 @@ sidebar_position: 8
 
 # KnowledgeGraph
 
-`KnowledgeGraph` (`reeve/core/knowledge_graph.py`) is the central store for everything known about a binary. Internally it's a `networkx.DiGraph` for call/reference edges plus six plain dicts for the actual node data — functions, types, strings, imports, components, and hypotheses.
+`KnowledgeGraph` (`reeve/core/knowledge_graph.py`) is the central store for everything known about a binary — functions, types, strings, imports, components, and hypotheses, plus the call/reference graph connecting them.
 
 ## Fact
 
-Every mutable field on a function (its name, its prototype) isn't a raw value — it's wrapped in a `Fact`:
+Every derived field on a function — its name, its prototype — is wrapped in a `Fact`, which tracks not just the value but where it came from and how confident REeve is in it:
 
 ```python
 @dataclass
@@ -22,7 +22,7 @@ class Fact:
     dirty: bool = False
 ```
 
-`Fact.update(value, confidence, source, evidence)` only accepts the new value if `source == FactSource.ANALYST` **or** the new confidence is strictly higher than the current one — an analyst override always wins, an LLM guess only overwrites a weaker LLM guess.
+An analyst override always takes precedence; otherwise a new value only replaces an existing one if it comes with higher confidence. This keeps a low-confidence early guess from being silently overwritten by an equally weak later one, while still letting stronger evidence win.
 
 ## Node Types
 
@@ -30,21 +30,17 @@ class Fact:
 @dataclass
 class FunctionNode:
     address: int
-    raw_name: str                     # Ghidra default, e.g. "FUN_00101a3f"
+    raw_name: str                     # disassembler default, e.g. "FUN_00101a3f"
     name: Fact
     prototype: Fact
-    size_class: SizeClass = SizeClass.SMALL
-    source_lang: SourceLang = SourceLang.UNKNOWN
+    size_class: SizeClass             # TRIVIAL / SMALL / MEDIUM / LARGE
+    source_lang: SourceLang            # C / CPP / GO / RUST / UNKNOWN
     component_id: Optional[str] = None
     obfuscated: bool = False
     obfuscation_patterns: list[str] = field(default_factory=list)
-    is_resolved: bool = False         # auto-resolved via signature match or analyst
+    is_resolved: bool = False          # auto-resolved via signature match or analyst
     comment: Optional[str] = None
-```
 
-`SizeClass` is `TRIVIAL` (≤5 basic blocks) / `SMALL` (6–20) / `MEDIUM` (21–100) / `LARGE` (100+) per its own docstring — though the code path that actually assigns it (in the call-graph handler) uses slightly different cutoffs (≤5/≤20/≤100) than a separate, unused `CallGraphBuilder` class (≤3/≤15/≤60). Treat the exact boundary as approximate.
-
-```python
 @dataclass
 class TypeNode:
     name: str
@@ -52,7 +48,6 @@ class TypeNode:
     fields: list[dict] = field(default_factory=list)
     size: Optional[int] = None
     confidence: float = 0.0
-    source: FactSource = FactSource.LLM
 
 @dataclass
 class StringNode:
@@ -80,52 +75,39 @@ class HypothesisNode:
     id: str
     claim: str
     confidence: float = 0.0
-    status: HypothesisStatus = HypothesisStatus.OPEN   # OPEN, CONFIRMED, REFUTED, DEFERRED
+    status: HypothesisStatus          # OPEN / CONFIRMED / REFUTED / DEFERRED
     evidence_for: list[str] = field(default_factory=list)
     evidence_against: list[str] = field(default_factory=list)
-    verification_task_ids: list[str] = field(default_factory=list)
 ```
 
-`HypothesisNode.add_evidence_for(evidence, weight=0.1)` adds `weight` to confidence and flips status to `CONFIRMED` at ≥0.85; `add_evidence_against` subtracts and flips to `REFUTED` at ≤0.15.
+Hypotheses accumulate evidence over the course of an analysis: each supporting fact nudges confidence up and each contradicting fact nudges it down, and crossing a high or low confidence threshold automatically confirms or refutes the hypothesis.
 
 ## Dirty Propagation
 
-When `graph.update_function_name()` accepts a new name for a function, `_dirty_mark_callers()` marks that function's **callers** (their `name` and `prototype` Facts) dirty — the idea being a callee's new name might change what its caller should be called. Nothing re-analyzes dirty functions automatically; the `PROPAGATE_NAMES` task explicitly collects `graph.dirty_functions()`, clears their dirty flag, and spawns one new `ANALYZE_FUNCTION` task per dirty function via `TaskResult.spawned_tasks`. If a plan doesn't include `PROPAGATE_NAMES` (the single-function and malware/vulnerability plans don't), dirty flags are simply never consumed.
+When a function's name is updated with higher confidence, its callers are marked dirty — a callee's new name can change what its caller should be called. The `PROPAGATE_NAMES` task collects dirty functions and re-queues them for another analysis pass, so naming quality compounds as more of the call graph resolves.
 
 ## Querying
 
-Selected real methods (not exhaustive):
+A sample of the graph's query surface:
 
 ```python
-graph.get_function(address: int) -> FunctionNode | None
-graph.get_function_by_name(name: str) -> FunctionNode | None
-graph.all_functions() -> list[FunctionNode]
+graph.get_function(address) / graph.get_function_by_name(name)
+graph.all_functions()
 graph.find_functions(calls=..., called_by=..., component_id=..., size_class=...,
-                      min_confidence=..., unresolved_only=..., obfuscated_only=...) -> list[FunctionNode]
-graph.callers_of(address) / graph.callees_of(address) -> list[FunctionNode]
-graph.bfs_bottom_up() -> Iterator[FunctionNode]   # leaves first, for call-graph-ordered analysis
-graph.dirty_functions() -> list[FunctionNode]
-graph.imports_by_category(category) -> list[ImportNode]
-graph.strings_by_category(category) -> list[StringNode]
-graph.functions_in_component(component_id) -> list[FunctionNode]
-graph.open_hypotheses() / graph.confirmed_hypotheses() -> list[HypothesisNode]
-graph.stats -> dict   # functions, resolved, named, dirty, imports, strings, types, components, hypotheses, call_edges
-graph.top_functions_by_centrality(n=50) -> list[FunctionNode]
-graph.serialize_context_block(max_functions=100) -> str
+                      min_confidence=..., unresolved_only=..., obfuscated_only=...)
+graph.callers_of(address) / graph.callees_of(address)
+graph.bfs_bottom_up()                  # leaves first, for call-graph-ordered analysis
+graph.imports_by_category(category)
+graph.strings_by_category(category)
+graph.functions_in_component(component_id)
+graph.open_hypotheses() / graph.confirmed_hypotheses()
+graph.top_functions_by_centrality(n=50)
+graph.serialize_context_block(max_functions=100)
+graph.stats
 ```
 
-`top_functions_by_centrality` ranks purely by call-graph **in-degree** (most-called-by-others) — it is not betweenness centrality or any graph-theoretic centrality measure, despite the name. `serialize_context_block` is what gets handed to the LLM as a compact summary (used by `reeve chat`'s `answer_question` calls, among others) — it lists the top functions by that in-degree ranking plus a one-line-per-component summary.
+`serialize_context_block` produces the compact summary handed to the LLM for interactive question-answering — the most call-connected functions plus a one-line-per-component summary, so the model reasons from a concise, ranked view of the binary rather than the full graph.
 
 ## Serialization
 
-`Session.save()` writes a flat, deliberately reduced JSON — not a full dump of the graph. Only these fields survive round-tripping through `<binary>.reeve.json`:
-
-```json
-{
-  "functions": [{"address": "0x101a3f", "raw_name": "...", "name": "...", "confidence": 0.85, "prototype": "...", "comment": "...", "component_id": "..."}],
-  "components": [{"id": "...", "name": "...", "purpose": "...", "confidence": 0.8}],
-  "hypotheses": [{"id": "...", "claim": "...", "confidence": 0.9, "status": "confirmed"}]
-}
-```
-
-Notably absent: call-graph edges, strings, imports, types, and decompilation. `reeve kb` and `reeve eval` reconstruct a `KnowledgeGraph` from just this — which is why a standalone `reeve kb` vault has no call-graph-derived "Calls"/"Called by" sections and no decompilation.
+`Session.save()` writes the graph's functions, components, and hypotheses to `<binary>.reeve.json` — the artifact that `reeve kb`, `reeve report`, and `reeve eval` all read back in for follow-up work without needing Ghidra again.

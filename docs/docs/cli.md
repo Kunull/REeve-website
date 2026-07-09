@@ -6,7 +6,7 @@ sidebar_position: 3
 
 # CLI Reference
 
-The installed command is `reeve` (a Click group). Every subcommand accepts the group-level `-v`/`--verbose` flag for debug logging.
+The installed command is `reeve`. Every subcommand accepts the group-level `-v`/`--verbose` flag for debug logging.
 
 ## reeve analyze
 
@@ -20,12 +20,12 @@ reeve analyze BINARY [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--goal`, `-g TEXT` | `"full analysis"` | Plain-English objective. Matched against a small set of keywords to pick a task plan — see [Goals](./goals.md). |
-| `--budget`, `-b FLOAT` | unlimited | Cost ceiling in USD. Once total cost reaches this, the executor skips remaining tasks — it does not downgrade to a cheaper model. |
+| `--goal`, `-g TEXT` | `"full analysis"` | Plain-English objective that drives task selection — see [Goals](./goals.md). |
+| `--budget`, `-b FLOAT` | unlimited | Cost ceiling in USD for the run. |
 | `--tui` / `--no-tui` | `--no-tui` | Launch the Textual TUI instead of a plain progress spinner. |
 | `--kb` / `--no-kb` | `--no-kb` | Build an Obsidian vault after analysis completes. |
 
-There is no flag to change where output is written: the session JSON and Markdown report are **always** saved, unconditionally, to `<binary>.reeve.json` and `<binary>.report.md` next to the binary.
+The session JSON and Markdown report are saved to `<binary>.reeve.json` and `<binary>.report.md` next to the binary.
 
 ### Example
 
@@ -43,9 +43,7 @@ Interactive chat over a binary.
 reeve chat BINARY
 ```
 
-Runs the static-analysis foundation once, then drops into a `question > ` prompt loop backed by a single Sonnet client (`answer_question`). Type `quit`, `exit`, or `q` to leave.
-
-The command's own docstring says "ask questions, rename functions," but the chat loop does not currently wire up tool-calling — nothing gets renamed through it. It answers questions against the knowledge graph context and nothing else.
+Runs the static-analysis foundation, then drops into a `question > ` prompt loop for asking questions about the binary against the knowledge graph. Type `quit`, `exit`, or `q` to leave.
 
 ---
 
@@ -57,7 +55,7 @@ Ask a single question about a binary, non-interactively.
 reeve ask BINARY "QUESTION"
 ```
 
-The question is passed straight into the same goal planner used by `analyze` (`GoalPlanner.decompose`), so it runs whatever static tasks that plan implies, then prints the first task result that contains an `"answer"` key. It always opens a Ghidra host — there's no string-search-only fast path despite what the docstring implies.
+Plans and runs the analysis needed to answer the question, then prints the answer.
 
 ---
 
@@ -76,13 +74,7 @@ reeve report SESSION_JSON [OPTIONS]
 | `--format`, `-f [md\|txt\|html\|json]` | `md` | Output format. |
 | `--output`, `-o PATH` | stdout | Write to a file instead of printing. |
 
-Conversion is done with regexes over the stored Markdown, not a real Markdown parser:
-
-- `txt` strips heading markers, bold/italic markers, inline code backticks, and link syntax.
-- `html` wraps `#`/`##`/`###` headings and paragraphs; lists, tables, and code fences are not converted.
-- `json` splits the report on whatever `#`/`##`/`###` headings actually appear in it, one key per heading (slugified) — not a fixed schema. See [Reports](./reports.md).
-
-If the session JSON has no `report` field, this command exits with an error asking you to re-run analysis.
+See [Reports](./reports.md) for what each format contains.
 
 ### Example
 
@@ -106,7 +98,7 @@ reeve kb SESSION_JSON [OPTIONS]
 |--------|---------|-------------|
 | `--output`, `-o PATH` | `<binary>_kb/` | Vault output directory. |
 
-This reconstructs a minimal `KnowledgeGraph` from the JSON (functions, components, hypotheses) — no Ghidra host, no API key needed. Because decompilation is never stored in the session JSON, function notes built this way have no `## Decompilation` section. Only `reeve analyze --kb` produces notes with embedded decompilation, since it has a live Ghidra host to pull it from.
+Useful for regenerating or sharing a knowledge base from a previous run without needing Ghidra or an API key again.
 
 ### Example
 
@@ -124,10 +116,10 @@ Score a saved analysis against a ground-truth JSON file.
 reeve eval ANALYSIS_JSON GROUND_TRUTH_JSON
 ```
 
-Reconstructs a minimal graph from `ANALYSIS_JSON` and runs `EvalHarness`, which computes exactly two metrics — see [Architecture](./architecture.md#evals).
+Reports symbol-naming and type-recovery accuracy against known-correct answers — useful for benchmarking REeve's output on binaries where the ground truth is known.
 
 ---
 
 ## Exit Codes
 
-Standard Click behavior applies: `0` on success, `1` when a command raises `click.ClickException` (Ghidra failures, missing report, etc.), `2` on a usage error (bad arguments, unknown option). REeve does not define exit codes beyond these.
+`0` on success, `1` on an analysis or Ghidra error, `2` on a usage error (bad arguments, unknown option).

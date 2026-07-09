@@ -82,7 +82,7 @@ Commands:
   report   Export or display the analysis report from a saved session JSON.
 ```
 
-See [CLI Reference](./cli.md) for what each command actually does.
+See [CLI Reference](./cli.md) for details on each command.
 
 ## Persisting Environment Variables
 
@@ -94,6 +94,3 @@ export GHIDRA_INSTALL_DIR=/path/to/ghidra_PUBLIC
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-## Notes on Dependencies
-
-`pyproject.toml` also lists `openai` and `z3-solver` as dependencies. Neither is currently wired into any code path — there is no OpenAI client and no Z3-based analysis anywhere in the source. Obfuscation detection is regex-based heuristics only. Don't expect either package to do anything yet.

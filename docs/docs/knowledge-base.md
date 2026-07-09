@@ -129,7 +129,7 @@ status: "confirmed"
 - parse_chunk does not validate the fd pointer
 ```
 
-There is no separate "Falsification Conditions" section in the actual note — `HypothesisNode` tracks `evidence_for`/`evidence_against` lists and a status (`open`/`confirmed`/`refuted`/`deferred`) derived from confidence crossing 0.85 or 0.15. See [KnowledgeGraph](./knowledge-graph.md#node-types).
+Hypotheses track supporting and contradicting evidence, and move between open, confirmed, and refuted status as confidence shifts — see [KnowledgeGraph](./knowledge-graph.md#node-types).
 
 ## Using the Vault in Obsidian
 
